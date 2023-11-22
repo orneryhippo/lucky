@@ -2,15 +2,47 @@
 <html>
 <head>
     <title>Lucky Numbers</title>
+    <style>
+        table {
+            border-collapse: collapse;
+            width: 40%;
+        }
+        th, td {
+            border: 1px solid black;
+            padding: 8px;
+            text-align: center;
+        }
+    </style>
 </head>
 <body>
-    <h1>P Lucky Numbers</h1>
-    <p>{{ pball_picks }}</p>
-    <p>{{ pball }}</p>
+    <table border="1">
+        <tr>
+            <th colspan="6">P Lucky Numbers</th>
+        </tr>
+        <tr>
+        {% for number in pball_picks %}
+                <td>{{ number }}</td>
+        {% endfor %}
+        {% for number in pball %}
+        <td>{{ number }}</td>
+        {% endfor %}
+    </tr>
+    </table>
+
     <hr/>
-    <h1>M Lucky Numbers</h1>
-    <p>{{ mball_picks }}</p>
-    <p>{{ mball }}</p>
+    <table border="1">
+        <tr>
+            <th colspan="6">M Lucky Numbers</th>
+        </tr>
+        <tr>
+        {% for number in mball_picks %}
+                <td>{{ number }}</td>
+        {% endfor %}
+        {% for number in mball %}
+        <td>{{ number }}</td>
+        {% endfor %}
+        </tr>
+    </table>
 
 </body>
 </html>
