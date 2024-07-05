@@ -1,5 +1,5 @@
 from flask import Flask, render_template
-# new line
+from datetime import datetime
 import random
 
 app = Flask(__name__)
@@ -30,8 +30,9 @@ def shuffle_numbers():
     random.shuffle(mballs)
     mball = mballs[:1]
 
+    current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     # Render them on a simple HTML page
-    return render_template('index.html', pball_picks=first_5, pball=pball,mball_picks=meg5, mball=mball)
+    return render_template('index.html', pball_picks=first_5, pball=pball,mball_picks=meg5, mball=mball, current_time=current_time)
 
 if __name__ == '__main__':
     app.run(debug=True)
