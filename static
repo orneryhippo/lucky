@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lucky Numbers Generator</title>
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --secondary-color: #1e40af;
+            --success-color: #059669;
+            --background-color: #f8fafc;
+            --card-background: #ffffff;
+            --text-color: #1f2937;
+            --border-color: #e5e7eb;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            color: #6b7280;
+        }
+
+        .timestamp {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 15px;
+            background-color: var(--card-background);
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+        }
+
+        .lottery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .lottery-card {
+            background-color: var(--card-background);
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+        }
+
+        .lottery-card h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            color: var(--secondary-color);
+        }
+
+        .numbers-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .number-ball {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.1rem;
+            color: white;
+            transition: transform 0.3s ease;
+        }
+
+        .number-ball:hover {
+            transform: scale(1.1);
+        }
+
+        .powerball-number {
+            background: linear-gradient(135deg, #dc2626, #991b1b);
+        }
+
+        .powerball-special {
+            background: linear-gradient(135deg, #7c3aed, #5b21b6);
+        }
+
+        .megaball-number {
+            background: linear-gradient(135deg, #059669, #047857);
+        }
+
+        .megaball-special {
+            background: linear-gradient(135deg, #ea580c, #c2410c);
+        }
+
+        .controls {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .generate-btn {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow);
+        }
+
+        .generate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 12px -1px rgba(0, 0, 0, 0.15);
+        }
+
+        .generate-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .status-message {
+            text-align: center;
+            padding: 10px;
+            border-radius: 6px;
+            margin-top: 15px;
+            font-weight: 500;
+        }
+
+        .status-success {
+            background-color: #d1fae5;
+            color: var(--success-color);
+            border: 1px solid #a7f3d0;
+        }
+
+        .status-error {
+            background-color: #fef2f2;
+            color: #dc2626;
+            border: 1px solid #fecaca;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+            color: #6b7280;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .lottery-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .number-ball {
+                width: 40px;
+                height: 40px;
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>🍀 Lucky Numbers Generator</h1>
+            <p>Generate your winning lottery numbers with our serverless AWS Lambda backend</p>
+        </header>
+
+        <div class="timestamp" id="timestamp">
+            <strong>Generated: </strong><span id="current-time">Loading...</span>
+        </div>
+
+        <div class="lottery-grid">
+            <div class="lottery-card">
+                <h2>🔴 Powerball Numbers</h2>
+                <div class="numbers-container" id="powerball-container">
+                    <div class="number-ball powerball-number">?</div>
+                    <div class="number-ball powerball-number">?</div>
+                    <div class="number-ball powerball-number">?</div>
+                    <div class="number-ball powerball-number">?</div>
+                    <div class="number-ball powerball-number">?</div>
+                    <div class="number-ball powerball-special">?</div>
+                </div>
+            </div>
+
+            <div class="lottery-card">
+                <h2>🟢 Mega Millions Numbers</h2>
+                <div class="numbers-container" id="megaball-container">
+                    <div class="number-ball megaball-number">?</div>
+                    <div class="number-ball megaball-number">?</div>
+                    <div class="number-ball megaball-number">?</div>
+                    <div class="number-ball megaball-number">?</div>
+                    <div class="number-ball megaball-number">?</div>
+                    <div class="number-ball megaball-special">?</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button class="generate-btn" id="generate-btn" onclick="generateNumbers()">
+                🎲 Generate New Numbers
+            </button>
+            <div class="status-message" id="status-message" style="display: none;"></div>
+        </div>
+
+        <footer class="footer">
+            <p>Powered by AWS Lambda • Built with ❤️ for lottery enthusiasts</p>
+        </footer>
+    </div>
+
+    <script>
+        // Configuration constants - avoiding magic numbers
+        const LOTTERY_CONFIG = {
+            POWERBALL: {
+                MAIN_NUMBERS: { min: 1, max: 69, count: 5 },
+                SPECIAL_NUMBER: { min: 1, max: 26, count: 1 }
+            },
+            MEGAMILLIONS: {
+                MAIN_NUMBERS: { min: 1, max: 70, count: 5 },
+                SPECIAL_NUMBER: { min: 1, max: 25, count: 1 }
+            }
+        };
+
+        // API Configuration - replace with your actual Lambda function URL
+        const API_CONFIG = {
+            LAMBDA_URL: 'https://your-api-gateway-url.amazonaws.com/prod/generate-numbers',
+            TIMEOUT: 10000
+        };
+
+        // Core lottery number generation logic
+        class LotteryNumberGenerator {
+            static generateNumberSet(min, max, count) {
+                const numbers = [];
+                const availableNumbers = Array.from({length: max - min + 1}, (_, i) => i + min);
+                
+                for (let i = 0; i < count; i++) {
+                    const randomIndex = Math.floor(Math.random() * availableNumbers.length);
+                    numbers.push(availableNumbers.splice(randomIndex, 1)[0]);
+                }
+                
+                return numbers.sort((a, b) => a - b);
+            }
+
+            static generateLotteryNumbers() {
+                return {
+                    powerball: {
+                        mainNumbers: this.generateNumberSet(
+                            LOTTERY_CONFIG.POWERBALL.MAIN_NUMBERS.min,
+                            LOTTERY_CONFIG.POWERBALL.MAIN_NUMBERS.max,
+                            LOTTERY_CONFIG.POWERBALL.MAIN_NUMBERS.count
+                        ),
+                        specialNumber: this.generateNumberSet(
+                            LOTTERY_CONFIG.POWERBALL.SPECIAL_NUMBER.min,
+                            LOTTERY_CONFIG.POWERBALL.SPECIAL_NUMBER.max,
+                            LOTTERY_CONFIG.POWERBALL.SPECIAL_NUMBER.count
+                        )
+                    },
+                    megamillions: {
+                        mainNumbers: this.generateNumberSet(
+                            LOTTERY_CONFIG.MEGAMILLIONS.MAIN_NUMBERS.min,
+                            LOTTERY_CONFIG.MEGAMILLIONS.MAIN_NUMBERS.max,
+                            LOTTERY_CONFIG.MEGAMILLIONS.MAIN_NUMBERS.count
+                        ),
+                        specialNumber: this.generateNumberSet(
+                            LOTTERY_CONFIG.MEGAMILLIONS.SPECIAL_NUMBER.min,
+                            LOTTERY_CONFIG.MEGAMILLIONS.SPECIAL_NUMBER.max,
+                            LOTTERY_CONFIG.MEGAMILLIONS.SPECIAL_NUMBER.count
+                        )
+                    },
+                    timestamp: new Date().toISOString()
+                };
+            }
+        }
+
+        // UI management utilities
+        class UIManager {
+            static updateTimestamp(timestamp) {
+                const timeElement = document.getElementById('current-time');
+                const date = new Date(timestamp);
+                timeElement.textContent = date.toLocaleString();
+            }
+
+            static updateNumberDisplay(containerId, mainNumbers, specialNumber) {
+                const container = document.getElementById(containerId);
+                const balls = container.querySelectorAll('.number-ball');
+                
+                // Update main numbers
+                mainNumbers.forEach((number, index) => {
+                    balls[index].textContent = number;
+                });
+                
+                // Update special number
+                balls[balls.length - 1].textContent = specialNumber[0];
+            }
+
+            static showStatus(message, isError = false) {
+                const statusElement = document.getElementById('status-message');
+                statusElement.textContent = message;
+                statusElement.className = `status-message ${isError ? 'status-error' : 'status-success'}`;
+                statusElement.style.display = 'block';
+                
+                setTimeout(() => {
+                    statusElement.style.display = 'none';
+                }, 3000);
+            }
+
+            static setLoadingState(isLoading) {
+                const button = document.getElementById('generate-btn');
+                
+                if (isLoading) {
+                    button.disabled = true;
+                    button.innerHTML = '<span class="loading-spinner"></span>Generating...';
+                } else {
+                    button.disabled = false;
+                    button.innerHTML = '🎲 Generate New Numbers';
+                }
+            }
+        }
+
+        // API communication layer
+        class LotteryAPI {
+            static async fetchNumbers() {
+                try {
+                    const response = await fetch(API_CONFIG.LAMBDA_URL, {
+                        method: 'GET',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        timeout: API_CONFIG.TIMEOUT
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+
+                    return await response.json();
+                } catch (error) {
+                    console.error('API Error:', error);
+                    throw error;
+                }
+            }
+        }
+
+        // Main application logic
+        async function generateNumbers() {
+            UIManager.setLoadingState(true);
+            
+            try {
+                // Try to fetch from Lambda API first
+                let numbersData;
+                try {
+                    numbersData = await LotteryAPI.fetchNumbers();
+                    UIManager.showStatus('Numbers generated from AWS Lambda!');
+                } catch (apiError) {
+                    console.warn('API unavailable, using local generation:', apiError);
+                    // Fallback to local generation
+                    numbersData = LotteryNumberGenerator.generateLotteryNumbers();
+                    UIManager.showStatus('Numbers generated locally (API unavailable)');
+                }
+
+                // Update the UI with generated numbers
+                UIManager.updateTimestamp(numbersData.timestamp);
+                UIManager.updateNumberDisplay(
+                    'powerball-container',
+                    numbersData.powerball.mainNumbers,
+                    numbersData.powerball.specialNumber
+                );
+                UIManager.updateNumberDisplay(
+                    'megaball-container',
+                    numbersData.megamillions.mainNumbers,
+                    numbersData.megamillions.specialNumber
+                );
+
+            } catch (error) {
+                console.error('Generation error:', error);
+                UIManager.showStatus('Error generating numbers. Please try again.', true);
+            } finally {
+                UIManager.setLoadingState(false);
+            }
+        }
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            // Generate initial numbers on page load
+            generateNumbers();
+            
+            // Auto-refresh every 5 minutes
+            setInterval(generateNumbers, 300000);
+        });
+
+        // Keyboard shortcut for generation
+        document.addEventListener('keydown', function(event) {
+            if (event.code === 'Space' && !event.target.matches('input, textarea')) {
+                event.preventDefault();
+                generateNumbers();
+            }
+        });
+    </script>
+</body>
+</html>
